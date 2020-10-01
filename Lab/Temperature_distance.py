@@ -70,3 +70,7 @@ if __name__ == "__main__":
                 
 GPIO.cleanup()
 
+
+
+Reference: https://pythonprogramming.net/garage-stoplight-raspberry-pi-tutorials/?completed=/gpio-input-raspberry-pi-tutorials/
+		
