@@ -4,73 +4,42 @@ import urllib
 import time
 key = "05KMLT9FYYFSUAPQ"  # Put your API Key here
 
-import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BCM)
-#GPIO.setwarnings(False)
-TRIG = 4
-ECHO = 18
-GPIO.setup(TRIG,GPIO.OUT)
-GPIO.setup(ECHO,GPIO.IN)
+import urllib.request
+import requests
+import threading
+import json
+key = "05KMLT9FYYFSUAPQ"  # Put your API Key here
+import random
+# @author: soumilshah1995 on github
 
-def distance ():
-    GPIO.output(TRIG, True)
-    time.sleep(0.00001)
-    GPIO.output(TRIG, False)
-    start = 0
-    end = 0
+# Define a function that will post on server every 15 Seconds
 
-    while GPIO.input(ECHO) == False:
-        start = time.time()
+def thingspeak_post():
+    threading.Timer(15,thingspeak_post).start()
+    val=random.randint(1,30)
+    URL='https://api.thingspeak.com/update?api_key=05KMLT9FYYFSUAPQ'
+    HEADER= '&field1={}&field2={}'.format(val,val)
+    NEW_URL= URL+HEADER
+    print(NEW_URL)
+    data=urllib.request.urlopen(NEW_URL)
+    print(data)
 
-    while GPIO.input(ECHO) == True:
-        end = time.time()
-	
-    sig_time = end - start
-    distance = sig_time / 0.000058 #cm
-    #distance = sig_time / 0.000148 #inches
-    print('Distance: {} centimeters'.format(distance))
-    
-    params = urllib.urlencode({'field1': distance, 'key':key })
-    headers = {"Content-typZZe": "application/x-www-form-urlencoded","Accept": "text/plain"}
-    conn = httplib.HTTPConnection("api.thingspeak.com:80")
-    try:
-        conn.request("POST", "/update", params, headers)
-        response = conn.getresponse()
-        #print temp
-        print response.status, response.reason
-        data = response.read()
-        conn.close()
-    except:
-        print "connection failed"
-    #break
+def read_data_thingspeak():
+    URL='https://api.thingspeak.com/channels/1161238/fields/1.json?api_key=4UIUHDQEJ8VJJI5C&results=2'
+    print(URL)
 
+    get_data=requests.get(NEW_URL).json()
+    #print(get_data)
+    channel_id=get_data['channel']['id']
 
-def thermometer():
-    while True:
-        #Calculate CPU temperature of Raspberry Pi in Degrees C
-        temp = int(open('/sys/class/thermal/thermal_zone0/temp').read()) / 1e3 # Get Raspberry Pi CPU temp
-        params = urllib.urlencode({'field1': temp, 'key':key })
-        headers = {"Content-typZZe": "application/x-www-form-urlencoded","Accept": "text/plain"}
-        conn = httplib.HTTPConnection("api.thingspeak.com:80")
-        try:
-            conn.request("POST", "/update", params, headers)
-            response = conn.getresponse()
-            print temp
-            print response.status, response.reason
-            data = response.read()
-            conn.close()
-        except:
-            print "connection failed"
-        break
-        
-if __name__ == "__main__":
-        while True:
-                distance()
-                time.sleep(0.5)
-                
-GPIO.cleanup()
+    feild_1=get_data['feeds']
+    #print(feild_1)
 
+    t=[]
+    for x in feild_1:
+        print(x['field1'])
+        t.append(x['field1'])
 
-
-Reference: https://pythonprogramming.net/garage-stoplight-raspberry-pi-tutorials/?completed=/gpio-input-raspberry-pi-tutorials/
-		
+if __name__ == '__main__':
+    #thingspeak_post()
+    read_data_thingspeak()
