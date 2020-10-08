@@ -33,3 +33,14 @@ print ("Humidity: %d%%" % current["humidity"])
 print ("Pressure: %d" % current["pressure"] )
 current = data["wind"]
 print ("Wind : %d" % current["speed"])
+
+dbconnect= sqlite3.connect("mydb.db");
+
+#to access columns by name 
+dbconnect.row_factory = sqlite3.Row; 
+cursor= dbconnect.cursor(); 
+cursor.execute('''insert into table(windspeed, city) values ('%s''%s')'''% (current["speed"], city));
+cursor.execute('SELECT * FROM table'); 
+
+for row in cursor:
+    print(row['windspeed'], row['city']);
