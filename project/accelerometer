@@ -1,0 +1,28 @@
+import httplib
+import urllib
+import time
+from sense_hat import SenseHat
+key = "1SOHR7GV2W4AH78H"  # Put your API Key here
+sense = SenseHat()
+
+
+def accelerometer():
+    while True:
+        acceleration = sense.get_accelerometer_raw()
+        y = acceleration['y']
+        params = urllib.urlencode({'field1': y,'key':key }) 
+        headers = {"Content-typZZe": "application/x-www-form-urlencoded","Accept": "text/plain"}
+        conn = httplib.HTTPConnection("api.thingspeak.com:80")
+        try:
+            conn.request("POST", "/update", params, headers)
+            response = conn.getresponse()
+            print y
+            print response.status, response.reason
+            data = response.read()
+            conn.close()
+        except:
+            print "connection failed"
+        break
+if __name__ == "__main__":
+        while True:
+                accelerometer()
